@@ -1,0 +1,22 @@
+{
+    "sourceFile": "playwright.config.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1774959977357,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1774990745752,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,9 +32,9 @@\n \n   // Shared settings for all tests\n   use: {\n     // Base URL for navigation shortcuts like page.goto('/')\n-    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',\n+    baseURL: process.env.BASE_URL || '',\n \n     // Collect trace on first retry\n     trace: 'on-first-retry',\n \n"
+                }
+            ],
+            "date": 1774959977357,
+            "name": "Commit-0",
+            "content": "import { defineConfig, devices } from '@playwright/test';\nimport * as dotenv from 'dotenv';\n\ndotenv.config({ path: `.env.${process.env.ENV || 'dev'}` });\n\nexport default defineConfig({\n  // Directory where tests are located\n  testDir: './tests',\n\n  // Run all tests in parallel\n  fullyParallel: true,\n\n  // Fail the build on CI if test.only is accidentally left in source code\n  forbidOnly: !!process.env.CI,\n\n  // Retry failed tests on CI\n  retries: process.env.CI ? 2 : 0,\n\n  // Limit parallel workers; use 1 on CI for stability\n  workers: process.env.CI ? 1 : undefined,\n\n  // Reporter configuration\n  reporter: [\n    ['list'],\n    ['html', { outputFolder: 'playwright-report', open: 'never' }],\n    ['allure-playwright', {\n      detail: true,\n      outputFolder: 'allure-results',\n      suiteTitle: false,\n    }],\n  ],\n\n  // Shared settings for all tests\n  use: {\n    // Base URL for navigation shortcuts like page.goto('/')\n    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',\n\n    // Collect trace on first retry\n    trace: 'on-first-retry',\n\n    // Take screenshot on failure\n    screenshot: 'only-on-failure',\n\n    // Record video on failure\n    video: 'on-first-retry',\n\n    // Browser locale\n    locale: 'en-US',\n\n    // Viewport\n    viewport: { width: 1280, height: 720 },\n\n    // Timeout for each action (click, fill, etc.)\n    actionTimeout: 10_000,\n\n    // Timeout for navigations\n    navigationTimeout: 30_000,\n\n    testIdAttribute: \"data-cy\"\n  },\n\n  // Global test timeout\n  timeout: 60_000,\n\n  // Expect assertion timeout\n  expect: {\n    timeout: 10_000,\n  },\n\n  // Output folder for test artifacts\n  outputDir: 'test-results',\n\n  // Browser projects\n  projects: [\n    // ── Auth setup (runs once, produces saved session files) ──────────────────\n    {\n      name: 'smart-setup',\n      testMatch: '**/setup/*.setup.ts',\n    },\n\n    // ── Smart app (reuses saved session — no UI login per test) ───────────────\n    {\n      name: 'smart-chromium',\n      testMatch: '**/e2e/*+(activities|notes)*.spec.ts',\n      use: {\n        ...devices['Desktop Chrome'],\n        storageState: 'playwright/.auth/activity-user.json',\n      },\n      dependencies: ['smart-setup'],\n    },\n\n    // ── SauceDemo (no saved session needed) ───────────────────────────────────\n    {\n      name: 'chromium',\n      testIgnore: '**/e2e/*+(activities|notes)*.spec.ts',\n      use: { ...devices['Desktop Chrome'] },\n    },\n    {\n      name: 'firefox',\n      testIgnore: '**/e2e/*+(activities|notes)*.spec.ts',\n      use: { ...devices['Desktop Firefox'] },\n    },\n  ],\n});\n"
+        }
+    ]
+}

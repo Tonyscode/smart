@@ -1,0 +1,62 @@
+{
+    "sourceFile": "tests/e2e/activity_new.spec.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 11,
+            "patches": [
+                {
+                    "date": 1774909485685,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1774909539125,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,8 @@\n import { smartTest } from '../../src/fixtures/smart.fixture';\r\n+\r\n+\r\n smartTest.describe('Activities - New Activity', () => {\r\n\\ No newline at end of file\n     smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n-        await projectCardPage.addActivityButton.click();    \n+        await projectCardPage.addActivityButton.click();\r\n+    });\r\n+});\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774909563791,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,6 @@\n import { smartTest } from '../../src/fixtures/smart.fixture';\r\n+import { checkValidDate, ACTIVITY_DATE_PATTERN } from '../../src/helpers/date.helper';\r\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n"
+                },
+                {
+                    "date": 1774909611281,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,11 @@\n import { smartTest } from '../../src/fixtures/smart.fixture';\r\n import { checkValidDate, ACTIVITY_DATE_PATTERN } from '../../src/helpers/date.helper';\r\n+import { SmartLoginPage } from '../../src/pages/smart/smart-login.page';\r\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n-        await projectCardPage.addActivityButton.click();\r\n+        await\r\n+            await projectCardPage.addActivityButton.click();\r\n     });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774909667669,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,12 @@\n import { smartTest } from '../../src/fixtures/smart.fixture';\r\n import { checkValidDate, ACTIVITY_DATE_PATTERN } from '../../src/helpers/date.helper';\r\n+import { BasePage } from '../../src/pages/base.page';\r\n import { SmartLoginPage } from '../../src/pages/smart/smart-login.page';\r\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n-        await\r\n-            await projectCardPage.addActivityButton.click();\r\n+        await BasePage.goToProjectCard(projectCardPage.page, 1); // Navigate to a specific project card\r\n+        await projectCardPage.addActivityButton.click();\r\n     });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910117375,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,12 +1,11 @@\n import { smartTest } from '../../src/fixtures/smart.fixture';\r\n import { checkValidDate, ACTIVITY_DATE_PATTERN } from '../../src/helpers/date.helper';\r\n-import { BasePage } from '../../src/pages/base.page';\r\n import { SmartLoginPage } from '../../src/pages/smart/smart-login.page';\r\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n-        await BasePage.goToProjectCard(projectCardPage.page, 1); // Navigate to a specific project card\r\n-        await projectCardPage.addActivityButton.click();\r\n+        await\r\n+            await projectCardPage.addActivityButton.click();\r\n     });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910158050,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,8 +4,8 @@\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n-        await\r\n+        await activitiesPage.goto(); await\r\n             await projectCardPage.addActivityButton.click();\r\n     });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910210384,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,10 @@\n import { SmartLoginPage } from '../../src/pages/smart/smart-login.page';\r\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n-    smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n-        await activitiesPage.goto(); await\r\n-            await projectCardPage.addActivityButton.click();\r\n-    });\r\n+    smartTest('should create a new activity with valid data @smoke',\r\n+        async ({ projectCardPage }) => {\r\n+            await activitiesPage.goto(); await\r\n+                await projectCardPage.addActivityButton.click();\r\n+        });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910222730,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,9 +4,9 @@\n \r\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke',\r\n-        async ({ projectCardPage }) => {\r\n+        async ({ page, activitiesPage, smartLogin, projectCardPage }) => {\r\n             await activitiesPage.goto(); await\r\n                 await projectCardPage.addActivityButton.click();\r\n         });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910467298,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,8 +5,10 @@\n \r\n smartTest.describe('Activities - New Activity', () => {\r\n     smartTest('should create a new activity with valid data @smoke',\r\n         async ({ page, activitiesPage, smartLogin, projectCardPage }) => {\r\n-            await activitiesPage.goto(); await\r\n+            await activitiesPage.goto(); \r\n+            await activitiesPage.goto();\r\n+          await activitiesPage.clearFiltersIfActive();\r\n                 await projectCardPage.addActivityButton.click();\r\n         });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910474008,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,7 +8,7 @@\n         async ({ page, activitiesPage, smartLogin, projectCardPage }) => {\r\n             await activitiesPage.goto();\r\n             await activitiesPage.goto();\r\n             await activitiesPage.clearFiltersIfActive();\r\n-            await projectCardPage.addActivityButton.click();\r\n+            // await projectCardPage.addActivityButton.click();\r\n         });\r\n });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1774910493230,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,7 +7,9 @@\n     smartTest('should create a new activity with valid data @smoke',\r\n         async ({ page, activitiesPage, smartLogin, projectCardPage }) => {\r\n             await activitiesPage.goto();\r\n             await activitiesPage.clearFiltersIfActive();\r\n+            await activitiesPage.deleteAllExceptLast();\r\n+\r\n             // await projectCardPage.addActivityButton.click();\r\n         });\r\n });\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1774909485685,
+            "name": "Commit-0",
+            "content": "import { smartTest } from '../../src/fixtures/smart.fixture';\r\nsmartTest.describe('Activities - New Activity', () => {\r\n    smartTest('should create a new activity with valid data @smoke', async ({ projectCardPage }) => {\r\n        await projectCardPage.addActivityButton.click();    "
+        }
+    ]
+}

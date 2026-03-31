@@ -1,0 +1,38 @@
+{
+    "sourceFile": "src/pages/smart/smart-login.page.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 5,
+            "patches": [
+                {
+                    "date": 1774958410176,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1774960153046,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,9 +28,9 @@\n       localStorage.setItem('disableNotification(select_client_notif)', 'true');\n       localStorage.setItem('GDPR', 'true');\n     });\n \n-    await this.page.locator('[data-cy=\"input-email\"]').first().clear();\n+    await this.page.getByTestId('input-email').first().clear();\n     await this.page.locator('[data-cy=\"input-email\"]').first().fill(email);\n     await this.page.locator('[data-cy=\"input-password\"]').clear();\n     await this.page.locator('[data-cy=\"input-password\"]').fill(password);\n     await this.page.locator('[data-cy=\"button-submit\"]').first().click();\n"
+                },
+                {
+                    "date": 1774960468551,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -22,13 +22,8 @@\n     await this.#setMaintenanceCookie(this.page.context());\n     await this.page.goto(`${BASE_URL}/login?set_language_id=1`);\n \n     // Suppress notification banners before any interaction\n-    await this.page.evaluate(() => {\n-      localStorage.setItem('header_notif_disabled', 'true');\n-      localStorage.setItem('disableNotification(select_client_notif)', 'true');\n-      localStorage.setItem('GDPR', 'true');\n-    });\n \n     await this.page.getByTestId('input-email').first().clear();\n     await this.page.locator('[data-cy=\"input-email\"]').first().fill(email);\n     await this.page.locator('[data-cy=\"input-password\"]').clear();\n"
+                },
+                {
+                    "date": 1774984018318,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,9 +28,9 @@\n     await this.page.locator('[data-cy=\"input-email\"]').first().fill(email);\n     await this.page.locator('[data-cy=\"input-password\"]').clear();\n     await this.page.locator('[data-cy=\"input-password\"]').fill(password);\n     await this.page.locator('[data-cy=\"button-submit\"]').first().click();\n-\n+ let coockieSubmit = this.page.locator('[data-cy=\"button-submit\"]').first();\n     await this.page.locator('[data-cy=\"button-save\"]').click();\n     await this.page.waitForURL(\n       /(\\/sales\\/((my-projects|my-tenders|)\\?status=1)|my-companies\\?folder=-1|dashboard)|\\/error\\?errorKey=company_subscription_expired/,\n       { timeout: 30_000 },\n"
+                },
+                {
+                    "date": 1774984068839,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -29,9 +29,11 @@\n     await this.page.locator('[data-cy=\"input-password\"]').clear();\n     await this.page.locator('[data-cy=\"input-password\"]').fill(password);\n     await this.page.locator('[data-cy=\"button-submit\"]').first().click();\n     let coockieSubmit = this.page.locator('[data-cy=\"button-submit\"]').first();\n-    await this.page.locator('[data-cy=\"button-save\"]').click();\n+    if (await coockieSubmit.count > 0){\n+      await this.page.locator('[data-cy=\"button-save\"]').click();\n+    }\n     await this.page.waitForURL(\n       /(\\/sales\\/((my-projects|my-tenders|)\\?status=1)|my-companies\\?folder=-1|dashboard)|\\/error\\?errorKey=company_subscription_expired/,\n       { timeout: 30_000 },\n     );\n"
+                },
+                {
+                    "date": 1774984090473,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -29,9 +29,9 @@\n     await this.page.locator('[data-cy=\"input-password\"]').clear();\n     await this.page.locator('[data-cy=\"input-password\"]').fill(password);\n     await this.page.locator('[data-cy=\"button-submit\"]').first().click();\n     let coockieSubmit = this.page.locator('[data-cy=\"button-submit\"]').first();\n-    if (await coockieSubmit.count > 0) {\n+    if (await coockieSubmit.isVisible()) {\n       await this.page.locator('[data-cy=\"button-save\"]').click();\n     }\n     await this.page.waitForURL(\n       /(\\/sales\\/((my-projects|my-tenders|)\\?status=1)|my-companies\\?folder=-1|dashboard)|\\/error\\?errorKey=company_subscription_expired/,\n"
+                }
+            ],
+            "date": 1774958410176,
+            "name": "Commit-0",
+            "content": "import { Page, BrowserContext } from '@playwright/test';\nimport { BasePage } from '../base.page';\n\nconst MAINTENANCE_KEY = process.env.SMART_MAINTENANCE_KEY || '724108c4-4393-4aaf-9dfd-4164cf6edffd';\nconst BASE_URL = process.env.SMART_BASE_URL || '';\n\n/**\n * Smart application login page.\n * Mirrors the `cy.login()` custom command behaviour including:\n *   – Maintenance-Key cookie (bypasses maintenance screen)\n *   – localStorage flags (disables onboarding / GDPR banners)\n *   – Session caching via Playwright storageState (equivalent to cy.session)\n */\nexport class SmartLoginPage extends BasePage {\n  constructor(page: Page) {\n    super(page);\n  }\n\n  // ── Core login flow ─────────────────────────────────────────────────────────\n\n  async login(email: string, password: string): Promise<void> {\n    await this.#setMaintenanceCookie(this.page.context());\n    await this.page.goto(`${BASE_URL}/login?set_language_id=1`);\n\n    // Suppress notification banners before any interaction\n    await this.page.evaluate(() => {\n      localStorage.setItem('header_notif_disabled', 'true');\n      localStorage.setItem('disableNotification(select_client_notif)', 'true');\n      localStorage.setItem('GDPR', 'true');\n    });\n\n    await this.page.locator('[data-cy=\"input-email\"]').first().clear();\n    await this.page.locator('[data-cy=\"input-email\"]').first().fill(email);\n    await this.page.locator('[data-cy=\"input-password\"]').clear();\n    await this.page.locator('[data-cy=\"input-password\"]').fill(password);\n    await this.page.locator('[data-cy=\"button-submit\"]').first().click();\n\n    await this.page.locator('[data-cy=\"button-save\"]').click();\n    await this.page.waitForURL(\n      /(\\/sales\\/((my-projects|my-tenders|)\\?status=1)|my-companies\\?folder=-1|dashboard)|\\/error\\?errorKey=company_subscription_expired/,\n      { timeout: 30_000 },\n    );\n  }\n\n  /**\n   * Switches the active session to a different user within the same page.\n   * Equivalent to calling `cy.login(otherUser)` mid-test in Cypress.\n   */\n  async loginAs(email: string, password: string): Promise<void> {\n    await this.login(email, password);\n  }\n\n  // ── Private helpers ─────────────────────────────────────────────────────────\n\n  async #setMaintenanceCookie(context: BrowserContext): Promise<void> {\n    const domain = new URL(BASE_URL).hostname;\n    await context.addCookies([{\n      name: 'Maintenance-Key',\n      value: MAINTENANCE_KEY,\n      domain,\n      path: '/',\n    }]);\n  }\n}\n"
+        }
+    ]
+}
