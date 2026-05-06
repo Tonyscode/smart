@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from '../base.page';
+import { log } from 'node:console';
 
 const BASE_URL = process.env.SMART_BASE_URL || '';
 
@@ -7,7 +8,7 @@ export class ActivitiesPage extends BasePage {
   // ── List-page locators ──────────────────────────────────────────────────────
   readonly totalNumberBlock: Locator;
   readonly clearFilterLink: Locator;
-  readonly activityRows: Locator;
+  readonly activityLinks: Locator;
   readonly mainTable: Locator;
 
   // ── Activity editor locators ────────────────────────────────────────────────
@@ -35,14 +36,14 @@ export class ActivitiesPage extends BasePage {
 
     this.totalNumberBlock = page.locator('.entity-list-total-number');
     this.clearFilterLink = page.locator('[data-cy="all-total-clear-filter-link"]');
-    this.activityRows = page.locator('.dt-table__tr .field-type__text > a');
+    this.activityLinks = page.locator('[data-cy="activity-type"] a');
     this.mainTable = page.locator('[data-cy="main-table"] tbody');
 
     this.inputTitle = page.getByTestId('input-title');
     this.inputNote = page.getByTestId('input-note');
     this.saveButton = page.getByTestId('save-button');
     this.deleteButton = page.getByTestId('delete-button');
-    this.editorDeleteButton = page.locator('.editor-activity__footer .btn-del');
+    this.editorDeleteButton = page.locator('[data-cy="delete-button"]');
     this.selectResponsible = page.getByTestId('select-responsible');
     this.responsibleItems = page.locator('[data-cy="checked-items"] > li');
     this.exportButton = page.getByTestId('export-button');
@@ -62,9 +63,9 @@ export class ActivitiesPage extends BasePage {
   /** Navigate to My Activities and wait for the data to load (2 GET requests, matching Cypress behaviour) */
   async goto(): Promise<void> {
     const url = `${BASE_URL}/sales/my-activities`;
-    // const waitForTwoLoads = this.#waitForActivityResponses(2);
+    const waitForTwoLoads = this.#waitForActivityResponses(1);
     await this.page.goto(url);
-    // await waitForTwoLoads;
+    await waitForTwoLoads;
   }
 
   async gotoProject(projectId: string): Promise<void> {
@@ -82,29 +83,33 @@ export class ActivitiesPage extends BasePage {
   // ── Precondition helpers ────────────────────────────────────────────────────
 
   /** If a filter is active, clear it so all activities are visible */
-  async clearFiltersIfActive(): Promise<void> {
-    let activityCount = this.page.locator('[data-cy="status"]')
-
-    if (await activityCount.count > 0) {
+  async clearFiltersIfActive() {
+    const cnt = await this.activityLinks.count();
+    console.log("Clearing active filter...", cnt);
+    if (await this.activityLinks.count() > 1) {
+      //const waitForLoads = this.#waitForActivityResponse('GET', '/api/v3/me/activities');
+      const waitForLoads = this.#waitForActivityResponses(2);
       await this.clearFilterLink.click();
+      await waitForLoads;
     }
   }
-
   /**
    * Deletes all activities except the last one.
    * Mirrors the `.each()` loop from the Cypress test.
    */
   async deleteAllExceptLast(): Promise<void> {
-    const rows = await this.activityRows.all();
+    const rows = await this.activityLinks.all();
+    console.log("Deleting activities, total count:", rows.length);
     for (let i = 0; i < rows.length - 1; i++) {
-      const waitForLoad = this.#waitForActivityResponses(2);
+      console.log("row", await rows[i])
+      const waitForLoad = this.#waitForActivityResponses(1);
       await rows[i].click();
       await waitForLoad;
 
       await expect(this.editorDeleteButton).toBeVisible();
       const waitForDelete = Promise.all([
-        this.#waitForActivityResponse('DELETE', '/api/v1/me/activities/'),
-        this.#waitForActivityResponses(2),
+        this.#waitForActivityResponse('DELETE', '/api/v1/me/activities/*'),
+        this.#waitForActivityResponses(1),
       ]);
       await this.editorDeleteButton.click({ force: true });
       await waitForDelete;
@@ -124,7 +129,7 @@ export class ActivitiesPage extends BasePage {
   }
 
   async saveActivity(): Promise<void> {
-    const waitForPost = this.#waitForActivityResponse('POST', '/api/v1/me/activities');
+    const waitForPost = this.#waitForActivityResponse('POST', '/api/v3/me/activities');
     await this.page.locator('.btn--save').click();
     await waitForPost;
   }
@@ -242,8 +247,10 @@ export class ActivitiesPage extends BasePage {
   /** Waits for N GET responses from the activities API */
   #waitForActivityResponses(count: number): Promise<void> {
     const promises = Array.from({ length: count }, () =>
-      this.page.waitForResponse(r =>
-        r.url().includes('/api/v1/me/activities') && r.request().method() === 'GET',
+      this.page.waitForResponse(r => {
+        console.log("Waiting for response, URL:", r.url(), "Method:", r.request().method());
+        return r.url().includes('/me/activities') && r.request().method() === 'GET'
+      },
       ),
     );
     return Promise.all(promises).then(() => undefined);
@@ -255,5 +262,21 @@ export class ActivitiesPage extends BasePage {
         r.url().includes(urlFragment) && r.request().method() === method,
       )
       .then(() => undefined);
+  }
+
+  async getFulfilledResponce(page: Page) {
+    return page.waitForResponse(async (res) => {
+      if (!res.url().includes('/me/activities')) {
+        return false;
+      }
+      const responsebody = await res.json();
+      console.log("Response body:", responsebody)
+      // return responsebody.data.result.meta.total
+      return {
+
+        total: responsebody?.data?.length || 0,
+      } as any as boolean
+      // res.status() === 200 && responsebody?.data?.length > 0
+    });
   }
 }
