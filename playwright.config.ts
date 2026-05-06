@@ -72,33 +72,28 @@ export default defineConfig({
 
   // Browser projects
   projects: [
-    // ── Auth setup (runs once, produces saved session files) ──────────────────
+    // ── Auth setup (runs once, produces saved session file) ───────────────────
     {
-      name: 'smart-setup',
-      testMatch: '**/setup/*.setup.ts',
+      name: 'setup-activity-user',
+      testMatch: '**/setup/auth.setup.ts',
     },
 
-    // ── Smart app (reuses saved session — no UI login per test) ───────────────
+    // ── Smart app: activity user (reuses saved session) ───────────────────────
     {
-      name: 'smart-chromium',
-      testMatch: '**/e2e/*+(activities|notes)*.spec.ts',
+      name: 'smart-activity',
+      testMatch: '**/e2e/activit*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/activity-user.json',
       },
-      dependencies: ['smart-setup'],
+      dependencies: ['setup-activity-user'],
     },
 
-    // ── SauceDemo (no saved session needed) ───────────────────────────────────
+    // ── SauceDemo (без auth — логін тестується всередині) ────────────────────
     {
       name: 'chromium',
-      testIgnore: '**/e2e/*+(activities|notes)*.spec.ts',
+      testMatch: ['**/e2e/login.spec.ts', '**/e2e/inventory.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      testIgnore: '**/e2e/*+(activities|notes)*.spec.ts',
-      use: { ...devices['Desktop Firefox'] },
     },
   ],
 });

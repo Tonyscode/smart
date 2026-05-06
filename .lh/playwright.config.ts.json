@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 16,
             "patches": [
                 {
                     "date": 1774959977357,
@@ -12,6 +12,66 @@
                 {
                     "date": 1774990745752,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,9 +32,9 @@\n \n   // Shared settings for all tests\n   use: {\n     // Base URL for navigation shortcuts like page.goto('/')\n-    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',\n+    baseURL: process.env.BASE_URL || '',\n \n     // Collect trace on first retry\n     trace: 'on-first-retry',\n \n"
+                },
+                {
+                    "date": 1778069292435,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -80,9 +80,9 @@\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n       name: 'smart-chromium',\n-      testMatch: '**/e2e/*+(activities|notes)*.spec.ts',\n+      testMatch: '**/e2e/*.spec.ts',\n       use: {\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n       },\n"
+                },
+                {
+                    "date": 1778073670611,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -80,9 +80,9 @@\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n       name: 'smart-chromium',\n-      testMatch: '**/e2e/*.spec.ts',\n+      testMatch: '**/e2e/activit*.spec.ts',\n       use: {\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n       },\n"
+                },
+                {
+                    "date": 1778073718006,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -73,9 +73,9 @@\n   // Browser projects\n   projects: [\n     // ── Auth setup (runs once, produces saved session files) ──────────────────\n     {\n-      name: 'smart-setup',\n+      name: 'smart-activity',\n       testMatch: '**/setup/*.setup.ts',\n     },\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n"
+                },
+                {
+                    "date": 1778073726989,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -74,9 +74,9 @@\n   projects: [\n     // ── Auth setup (runs once, produces saved session files) ──────────────────\n     {\n       name: 'smart-activity',\n-      testMatch: '**/setup/*.setup.ts',\n+      testMatch: '**/setup/activit*.setup.ts',\n     },\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n"
+                },
+                {
+                    "date": 1778073757845,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -74,9 +74,9 @@\n   projects: [\n     // ── Auth setup (runs once, produces saved session files) ──────────────────\n     {\n       name: 'smart-activity',\n-      testMatch: '**/setup/activit*.setup.ts',\n+      testMatch: '**/setup/activit*.spec.ts',\n     },\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n"
+                },
+                {
+                    "date": 1778073797039,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -75,9 +75,12 @@\n     // ── Auth setup (runs once, produces saved session files) ──────────────────\n     {\n       name: 'smart-activity',\n       testMatch: '**/setup/activit*.spec.ts',\n-    },\n+      use: {\n+        ...devices['Desktop Chrome'],\n+        storageState: 'playwright/.auth/activity-user.json',\n+      },\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n       name: 'smart-chromium',\n"
+                },
+                {
+                    "date": 1778073808369,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -78,9 +78,11 @@\n       testMatch: '**/setup/activit*.spec.ts',\n       use: {\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n+        dependencies: ['setup-activity-user'],\n       },\n+    },\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n       name: 'smart-chromium',\n"
+                },
+                {
+                    "date": 1778073829249,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -78,10 +78,10 @@\n       testMatch: '**/setup/activit*.spec.ts',\n       use: {\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n-        dependencies: ['setup-activity-user'],\n       },\n+      dependencies: ['setup-activity-user'],\n     },\n \n     // ── Smart app (reuses saved session — no UI login per test) ───────────────\n     {\n"
+                },
+                {
+                    "date": 1778073883766,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -82,28 +82,7 @@\n       },\n       dependencies: ['setup-activity-user'],\n     },\n \n-    // ── Smart app (reuses saved session — no UI login per test) ───────────────\n-    {\n-      name: 'smart-chromium',\n-      testMatch: '**/e2e/activit*.spec.ts',\n-      use: {\n-        ...devices['Desktop Chrome'],\n-        storageState: 'playwright/.auth/activity-user.json',\n-      },\n-      dependencies: ['smart-setup'],\n-    },\n \n-    // ── SauceDemo (no saved session needed) ───────────────────────────────────\n-    {\n-      name: 'chromium',\n-      testIgnore: '**/e2e/*+(activities|notes)*.spec.ts',\n-      use: { ...devices['Desktop Chrome'] },\n-    },\n-    {\n-      name: 'firefox',\n-      testIgnore: '**/e2e/*+(activities|notes)*.spec.ts',\n-      use: { ...devices['Desktop Firefox'] },\n-    },\n   ],\n });\n"
+                },
+                {
+                    "date": 1778073909676,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -81,8 +81,6 @@\n         storageState: 'playwright/.auth/activity-user.json',\n       },\n       dependencies: ['setup-activity-user'],\n     },\n-\n-\n   ],\n });\n"
+                },
+                {
+                    "date": 1778074071834,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -80,7 +80,7 @@\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n       },\n       dependencies: ['setup-activity-user'],\n-    },\n+    }\n   ],\n });\n"
+                },
+                {
+                    "date": 1778074803008,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -71,8 +71,12 @@\n   outputDir: 'test-results',\n \n   // Browser projects\n   projects: [\n+    {\n+      name: 'setup-activity-user',\n+      testMatch: '**/setup/auth.setup.ts',\n+    },\n     // ── Auth setup (runs once, produces saved session files) ──────────────────\n     {\n       name: 'smart-activity',\n       testMatch: '**/setup/activit*.spec.ts',\n"
+                },
+                {
+                    "date": 1778074963906,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -73,9 +73,9 @@\n   // Browser projects\n   projects: [\n     {\n       name: 'setup-activity-user',\n-      testMatch: '**/setup/auth.setup.ts',\n+      testMatch: '**/e2e/activit*.spec.ts',\n     },\n     // ── Auth setup (runs once, produces saved session files) ──────────────────\n     {\n       name: 'smart-activity',\n"
+                },
+                {
+                    "date": 1778074988473,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -84,7 +84,19 @@\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n       },\n       dependencies: ['setup-activity-user'],\n-    }\n+    },\n+\n+    // ── SauceDemo (без auth) ──────────────────────────────────────────────────\n+    {\n+      name: 'chromium',\n+      testIgnore: '**/e2e/activit*.spec.ts',\n+      use: { ...devices['Desktop Chrome'] },\n+    },\n+    {\n+      name: 'firefox',\n+      testIgnore: '**/e2e/activit*.spec.ts',\n+      use: { ...devices['Desktop Firefox'] },\n+    },\n   ],\n });\n"
+                },
+                {
+                    "date": 1778075678593,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -71,32 +71,29 @@\n   outputDir: 'test-results',\n \n   // Browser projects\n   projects: [\n+    // ── Auth setup (runs once, produces saved session file) ───────────────────\n     {\n       name: 'setup-activity-user',\n-      testMatch: '**/e2e/activit*.spec.ts',\n+      testMatch: '**/setup/auth.setup.ts',\n     },\n-    // ── Auth setup (runs once, produces saved session files) ──────────────────\n+\n+    // ── Smart app: activity user (reuses saved session) ───────────────────────\n     {\n       name: 'smart-activity',\n-      testMatch: '**/setup/activit*.spec.ts',\n+      testMatch: '**/e2e/activit*.spec.ts',\n       use: {\n         ...devices['Desktop Chrome'],\n         storageState: 'playwright/.auth/activity-user.json',\n       },\n       dependencies: ['setup-activity-user'],\n     },\n \n-    // ── SauceDemo (без auth) ──────────────────────────────────────────────────\n+    // ── SauceDemo (без auth — логін тестується всередині) ────────────────────\n     {\n       name: 'chromium',\n-      testIgnore: '**/e2e/activit*.spec.ts',\n+      testMatch: ['**/e2e/login.spec.ts', '**/e2e/inventory.spec.ts'],\n       use: { ...devices['Desktop Chrome'] },\n     },\n-    {\n-      name: 'firefox',\n-      testIgnore: '**/e2e/activit*.spec.ts',\n-      use: { ...devices['Desktop Firefox'] },\n-    },\n   ],\n });\n"
                 }
             ],
             "date": 1774959977357,
