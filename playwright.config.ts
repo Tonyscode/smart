@@ -74,8 +74,8 @@ export default defineConfig({
   projects: [
     // ── Auth setup (runs once, produces saved session file) ───────────────────
     {
-      name: 'setup-activity-user',
-      testMatch: '**/setup/auth.setup.ts',
+      name: 'setup-user',
+      testMatch: '**/setup/*.setup.ts',
     },
 
     // ── Smart app: activity user (reuses saved session) ───────────────────────
@@ -84,9 +84,9 @@ export default defineConfig({
       testMatch: '**/e2e/activit*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/activity-user.json',
+        storageState: 'playwright/.auth/api-activity-user.json',
       },
-      dependencies: ['setup-activity-user'],
+      dependencies: ['setup-user'],
     },
 
     // ── SauceDemo (без auth — логін тестується всередині) ────────────────────
