@@ -5,7 +5,7 @@ playwright-report/
 allure-results/
 allure-report/
 test-results/
-.env.dev
-.env.staging
-.env.prod
+.env.*
 *.env
+.lh/
+playwright/.auth/

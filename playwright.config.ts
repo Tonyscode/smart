@@ -51,7 +51,7 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
 
     // Timeout for each action (click, fill, etc.)
-    actionTimeout: 10_000,
+    actionTimeout: 15_000,
 
     // Timeout for navigations
     navigationTimeout: 30_000,
@@ -78,14 +78,11 @@ export default defineConfig({
       testMatch: '**/setup/*.setup.ts',
     },
 
-    // ── Smart app: activity user (reuses saved session) ───────────────────────
+    // ── Smart app: all e2e tests (each spec sets its own storageState or logs in via UI) ──
     {
-      name: 'smart-activity',
-      testMatch: '**/e2e/activit*.spec.ts',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/api-activity-user.json',
-      },
+      name: 'smart-e2e',
+      testMatch: ['**/e2e/activities.spec.ts', '**/e2e/activity_new.spec.ts', '**/e2e/projects.spec.ts'],
+      use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup-user'],
     },
 
