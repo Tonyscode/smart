@@ -4,10 +4,6 @@ import { checkValidDate, ACTIVITY_DATE_PATTERN } from '../../src/helpers/date.he
 import { LoginPage } from '../../src/pages/login.page';
 import { SmartLoginPage } from '../../src/pages/smart/smart-login.page';
 import { step } from 'allure-js-commons';
-// const ACTIVITY_USER = process.env.ACTIVITY_USER;
-// const ACTIVITY1_USER = process.env.ACTIVITY1_USER;
-// const SMART_PASSWORD = process.env.SMART_PASSWORD || 'smartuser';
-
 
 smartTest.describe('Activities - New Activity', () => {
     smartTest.use({ storageState: "playwright/.auth/api-dk-user.json" });
@@ -18,12 +14,11 @@ smartTest.describe('Activities - New Activity', () => {
         async ({ page, activitiesPage, request }) => {
             let getActivitiesList: APIResponse;
             let activities: number[] = [];
-            let length: number[] = [];
             const opidCookie = (await page.context().cookies()).find(cookie => cookie.name === 'OPID')?.value;
             // console.log("opid", opidCookie)
 
-            // Фабрика: створює СВІЖИЙ слухач на кожен виклик.
-            // Один waitForResponse = одна резолюція. Не шерити між навігаціями.
+            // Factory: creates a FRESH listener on every call.
+            // One waitForResponse = one resolution. Do not share across navigations.
             const waitForProjectsQueryWithData = () =>
                 page.waitForResponse(async (r) => {
                     if (r.request().method() !== 'POST') return false;
@@ -38,9 +33,9 @@ smartTest.describe('Activities - New Activity', () => {
                 }, { timeout: 30_000 });
 
             async function activityPage() {
-                // Обидва слухачі реєструємо ДО goto — інакше можна проґавити швидку відповідь.
-                // Фабрика дає свіжий Promise на кожен виклик activityPage(),
-                // тому повторний виклик у фінальному кроці теж працює коректно.
+                // Register both listeners BEFORE goto — otherwise a fast response can be missed.
+                // The factory gives a fresh Promise on every activityPage() call,
+                // so a repeated call in the final step also works correctly.
                 const activityLoad = page.waitForResponse(
                     r => r.url().includes('/api/v3/me/activities') && r.status() === 200,
                     { timeout: 30_000 }
@@ -49,7 +44,7 @@ smartTest.describe('Activities - New Activity', () => {
 
                 await page.goto(`${BASE_URL}/sales/my-activities`);
 
-                // Activities-сторінка не рендерить рядки без даних із обох ендпойнтів.
+                // The activities page does not render rows until data from both endpoints is loaded.
                 await Promise.all([activityLoad, projectsLoaded]);
 
                 await expect(page.getByRole('heading', { name: 'My activities' })).toBeVisible();
@@ -95,7 +90,6 @@ smartTest.describe('Activities - New Activity', () => {
                                 },
                             }
                         );
-                        const body = await response.json();
                         expect(response.status()).toBe(200);
                         console.log("activities:", activities.length);
                         console.trace("Deleted activity ID:", activities[i]);
@@ -108,24 +102,24 @@ smartTest.describe('Activities - New Activity', () => {
             })
             await step('Go to projects page, open the most recent project', async () => {
 
-                // 1. Свіжий слухач РЕЄСТРУЄМО ДО goto, інакше можна проґавити запит
+                // 1. Register a FRESH listener BEFORE goto — otherwise the request can be missed
                 const projectsLoaded = waitForProjectsQueryWithData();
 
-                // 2. Навігація
+                // 2. Navigation
                 await page.goto(`${BASE_URL}/sales/my-projects?status=2`, { waitUntil: 'domcontentloaded' });
 
-                // 3. Network-сигнал: дочекатись хоча б однієї відповіді з непорожнім data.
-                //    Не критично, якщо це не остання з трьох — далі UI-якір зробить решту.
-                //    catch на випадок, якщо фронт зрезолвить дані без матчу нашого предиката
-                //    (наприклад, дані прийшли з кешу без HTTP-виклику).
-                await projectsLoaded.catch(() => { /* fallback на UI-якір нижче */ });
+                // 3. Network signal: wait for at least one response with non-empty data.
+                //    Not critical if this is not the last of three — the UI anchor will handle the rest.
+                //    catch in case the front-end resolves data without matching our predicate
+                //    (e.g., data arrived from cache without an HTTP call).
+                await projectsLoaded.catch(() => { /* fallback to UI anchor below */ });
 
-                // 4. Основний якір стійкості — UI: рівно 3 рядки в DOM.
-                //    Auto-retry, не залежить від кількості/порядку API-викликів.
+                // 4. Main stability anchor — UI: exactly 3 rows in the DOM.
+                //    Auto-retries; does not depend on the count/order of API calls.
                 const entityLinks = page.getByTestId('entity-link');
                 await expect(entityLinks).toHaveCount(3, { timeout: 30_000 });
 
-                // 5. Сигнали для кліку — реєструвати ДО кліку
+                // 5. Response listeners for click — register BEFORE clicking
                 const projectMeta = page.waitForResponse(
                     (r) => /\/api\/v1\/projects\/\d+(\?|$)/.test(r.url()) && r.status() === 200,
                     { timeout: 30_000 }
@@ -138,7 +132,7 @@ smartTest.describe('Activities - New Activity', () => {
                 await entityLinks.nth(1).click();
                 await Promise.all([projectMeta, projectActivities]);
 
-                // 6. UI-підтвердження, що картка проєкту готова до додавання активності
+                // 6. UI confirmation that the project card is ready to add an activity
                 await expect(page.getByTestId('button-add-activity')).toBeVisible({ timeout: 20_000 });
             });
             // await step('Claude API requests login', async () => {
