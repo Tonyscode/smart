@@ -86,7 +86,14 @@ export default defineConfig({
       dependencies: ['setup-user'],
     },
 
-    // ── SauceDemo (без auth — логін тестується всередині) ────────────────────
+    // ── Smart app: login form tests (no auth setup — testing login itself) ──────
+    {
+      name: 'smart-login',
+      testMatch: ['**/e2e/smart-login.spec.ts'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // ── SauceDemo (no auth — login is tested inside the spec) ────────────────
     {
       name: 'chromium',
       testMatch: ['**/e2e/login.spec.ts', '**/e2e/inventory.spec.ts'],
