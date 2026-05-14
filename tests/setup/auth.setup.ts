@@ -7,11 +7,11 @@ const DK_USER = process.env.DK_USER!;
 const SMART_PASSWORD = process.env.SMART_PASSWORD!;
 const domain = new URL(process.env.SMART_BASE_URL!).hostname;
 
-// setup('authenticate as activity user', async ({ page }) => {
-//   const loginPage = new SmartLoginPage(page);
-//   await loginPage.login(DK_USER, SMART_PASSWORD);
-//   await page.context().storageState({ path: 'playwright/.auth/dk-user.json' });
-// });
+setup('authenticate as activity user', async ({ page }) => {
+  const loginPage = new SmartLoginPage(page);
+  await loginPage.login(DK_USER, SMART_PASSWORD);
+  await page.context().storageState({ path: 'playwright/.auth/dk-user.json' });
+});
 
 setup('authenticate via API', async ({ request }) => {
   const response = await request.post(`${process.env.SMART_BASE_URL}/api/v1/auth`, {
