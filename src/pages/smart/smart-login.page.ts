@@ -12,6 +12,7 @@ export class SmartLoginPage extends BasePage {
   readonly submitButton: Locator;
   // Update this selector once you inspect the actual DOM for the error element
   readonly errorMessage: Locator;
+  readonly wrongCredentialsMsg: Locator;
   readonly forgotPasswordLink: Locator;
   readonly acceptPolicyButton: Locator;
 
@@ -20,11 +21,13 @@ export class SmartLoginPage extends BasePage {
     this.emailInput = page.getByTestId('input-email').first();
     this.passwordInput = page.getByTestId('input-password');
     this.submitButton = page.getByTestId('button-submit').first();
-    this.errorMessage = page.locator('.mini-toastr-notification__message').first();
+    this.errorMessage = page.getByTestId('form-invalid-feedback').first();
+    this.wrongCredentialsMsg = page.getByTestId('mini-toastr-notification__message').first();
     this.forgotPasswordLink = page.getByRole('link', { name: /forgot/i });
     this.acceptPolicyButton = page.getByTestId('button-save');
   }
-
+  //mini-toastr-notification__message - wrong credentials//Sign-in failed. Please check your credentials and try again.
+  //mini-toastr-notification__message //Sign-in failed. Please check your credentials and try again.
   // ── Navigation ──────────────────────────────────────────────────────────────
 
   async goto(): Promise<void> {
@@ -83,7 +86,6 @@ export class SmartLoginPage extends BasePage {
   async assertRedirectedToApp(): Promise<void> {
     await this.page.waitForURL(SUCCESS_URL_RE, { timeout: 30_000 });
     await this.page.waitForLoadState('domcontentloaded');
-
   }
 
   async assertStaysOnLoginPage(): Promise<void> {
