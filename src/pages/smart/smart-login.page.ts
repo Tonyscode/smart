@@ -64,8 +64,11 @@ export class SmartLoginPage extends BasePage {
 
     // Accept cookie-consent dialog if it appears after submit
     const cookieSave = this.page.getByTestId('button-save');
-    if (await cookieSave.isVisible()) {
+    try {
+      await cookieSave.waitFor({ state: 'visible', timeout: 3_000 });
       await cookieSave.click();
+    } catch {
+      // dialog did not appear — skip
     }
   }
 
