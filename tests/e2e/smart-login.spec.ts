@@ -5,6 +5,11 @@ import { expect } from '@playwright/test';
 const DK_USER = process.env.DK_USER!;
 const SMART_PASSWORD = process.env.SMART_PASSWORD!;
 
+// Serial mode prevents parallel auth requests to the dev server.
+// mini-toastr notifications live only ~5.7 s; concurrent POST /api/v1/auth
+// calls slow the server response and collapse the assertion window below 10 s.
+smartTest.describe.configure({ mode: 'serial' });
+
 smartTest.describe('Smart app — Login form', () => {
   // No storageState — the login form itself is under test
 
@@ -23,7 +28,8 @@ smartTest.describe('Smart app — Login form', () => {
       await expect(smartLogin.page.getByTestId('dashboard')).toBeVisible();
     });
   });
-  smartTest('should log in with valid credentials @smoke', async ({ smartLogin }) => {
+
+  smartTest('should log in with valid credentials @regression @smoke', async ({ smartLogin }) => {
     allureHelper.setSeverity('blocker');
     allureHelper.addTag('auth', 'smoke', 'positive');
     allureHelper.addDescription('DK_USER can log in with valid credentials and reach the app.');
@@ -152,7 +158,7 @@ smartTest.describe('Smart app — Login form', () => {
     });
 
     await allureHelper.addStep('Verify error and stays on login page', async () => {
-      await smartLogin.assertErrorVisible('Sign-in failed. Please check your credentials and try again.');
+      await smartLogin.assertWrongCredentials('Sign-in failed. Please check your credentials and try again.');
       await smartLogin.assertStaysOnLoginPage();
     });
   });
@@ -168,7 +174,7 @@ smartTest.describe('Smart app — Login form', () => {
     });
 
     await allureHelper.addStep('Verify error and stays on login page', async () => {
-      await smartLogin.assertErrorVisible();
+      await smartLogin.assertWrongCredentials('Sign-in failed. Please check your credentials and try again.');
       await smartLogin.assertStaysOnLoginPage();
     });
   });
@@ -191,7 +197,7 @@ smartTest.describe('Smart app — Login form', () => {
 
   // ── UI / Security ────────────────────────────────────────────────────────────
 
-  smartTest('should display all login form elements on page load @smoke', async ({ smartLogin }) => {
+  smartTest('should display all login form elements on page load @regression @smoke', async ({ smartLogin }) => {
     allureHelper.setSeverity('normal');
     allureHelper.addTag('auth', 'smoke', 'ui');
 

@@ -90,6 +90,7 @@ export default defineConfig({
     {
       name: 'smart-login',
       testMatch: ['**/e2e/smart-login.spec.ts'],
+      retries: process.env.CI ? 1 : 0,
       use: { ...devices['Desktop Chrome'] },
     },
 
