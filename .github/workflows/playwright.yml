@@ -3,8 +3,8 @@ name: Playwright E2E Tests
 on:
   push:
     branches: ['**']
-  pull_request:
-    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'   # nightly at midnight UTC
   workflow_dispatch:
     inputs:
       jobs:
@@ -33,6 +33,8 @@ jobs:
   e2e-parallel:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.jobs == 'both' || inputs.jobs == 'parallel' }}
+    env:
+      SMOKE_FLAG: ${{ github.event_name == 'push' && '--grep @smoke' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -44,7 +46,7 @@ jobs:
       - run: npm ci && npx playwright install --with-deps chromium
 
       - name: Run smart-e2e and SauceDemo tests
-        run: npx playwright test --project=smart-e2e --project=chromium --workers=auto
+        run: npx playwright test --project=smart-e2e --project=chromium --workers=auto $SMOKE_FLAG
         env:
           CI: true
           BASE_URL: ${{ secrets.BASE_URL }}
@@ -78,6 +80,8 @@ jobs:
   e2e-login:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.jobs == 'both' || inputs.jobs == 'login' }}
+    env:
+      SMOKE_FLAG: ${{ github.event_name == 'push' && '--grep @smoke' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -89,7 +93,7 @@ jobs:
       - run: npm ci && npx playwright install --with-deps chromium
 
       - name: Run smart-login tests (serial)
-        run: npx playwright test --project=smart-login --workers=1
+        run: npx playwright test --project=smart-login --workers=1 $SMOKE_FLAG
         env:
           CI: true
           SMART_BASE_URL: ${{ secrets.SMART_BASE_URL }}
