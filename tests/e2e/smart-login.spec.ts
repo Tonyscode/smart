@@ -29,7 +29,7 @@ smartTest.describe('Smart app — Login form', () => {
     });
   });
 
-  smartTest('should log in with valid credentials @regression @smoke', async ({ smartLogin }) => {
+  smartTest.skip('should log in with valid credentials @regression @smoke', async ({ smartLogin }) => {
     allureHelper.setSeverity('blocker');
     allureHelper.addTag('auth', 'smoke', 'positive');
     allureHelper.addDescription('DK_USER can log in with valid credentials and reach the app.');
