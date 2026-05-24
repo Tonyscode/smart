@@ -22,12 +22,10 @@ export class SmartLoginPage extends BasePage {
     this.passwordInput = page.getByTestId('input-password');
     this.submitButton = page.getByTestId('button-submit').first();
     this.errorMessage = page.getByTestId('form-invalid-feedback').first();
-    this.wrongCredentialsMsg = page.getByTestId('mini-toastr-notification__message').first();
+    this.wrongCredentialsMsg = page.locator('.mini-toastr-notification__message');
     this.forgotPasswordLink = page.getByRole('link', { name: /forgot/i });
     this.acceptPolicyButton = page.getByTestId('button-save');
   }
-  //mini-toastr-notification__message - wrong credentials//Sign-in failed. Please check your credentials and try again.
-  //mini-toastr-notification__message //Sign-in failed. Please check your credentials and try again.
   // ── Navigation ──────────────────────────────────────────────────────────────
 
   async goto(): Promise<void> {
@@ -75,13 +73,13 @@ export class SmartLoginPage extends BasePage {
     }
   }
 
-  /** Switches the active session to a different user within the same page. */
+  // Switches the active session to a different user within the same page. 
   async loginAs(email: string, password: string): Promise<void> {
     await this.login(email, password);
     await expect(this.page.getByTestId('user-menu')).toBeVisible();
   }
 
-  // ── Assertions ──────────────────────────────────────────────────────────────
+  // ==== Assertions ============================================
 
   async assertRedirectedToApp(): Promise<void> {
     await this.page.waitForURL(SUCCESS_URL_RE, { timeout: 30_000 });
@@ -93,10 +91,13 @@ export class SmartLoginPage extends BasePage {
   }
 
   async assertErrorVisible(text?: string): Promise<void> {
-    await expect(this.errorMessage).toBeVisible();
-    if (text) {
-      await expect(this.errorMessage).toContainText(text);
-    }
+    await this.#assertLocatorVisible(this.errorMessage, text);
+  }
+
+  async assertWrongCredentials(text?: string): Promise<void> {
+    // The toast is rendered only after the server returns an auth-error response.
+    // so timeout was applied to prevent false negatives under slow conditions
+    await this.#assertLocatorVisible(this.wrongCredentialsMsg, text, 4_000);
   }
 
   async assertPasswordMasked(): Promise<void> {
@@ -113,6 +114,15 @@ export class SmartLoginPage extends BasePage {
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────────
+
+  /**
+    Asserts that `locator` is visible (and optionally contains `text`).
+    The `timeout` parameter lets callers override the global `expect.timeout`
+  */
+  async #assertLocatorVisible(locator: Locator, text?: string, timeout?: number): Promise<void> {
+    const target = text ? locator.filter({ hasText: text }) : locator;
+    await expect(target).toBeVisible(timeout ? { timeout } : undefined);
+  }
 
   async #setMaintenanceCookie(context: BrowserContext): Promise<void> {
     const domain = new URL(BASE_URL).hostname;
