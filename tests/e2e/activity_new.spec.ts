@@ -1,7 +1,6 @@
 import { smartTest } from '../../src/fixtures/smart.fixture';
 import { expect, APIResponse } from "@playwright/test";
 import { checkValidDate, ACTIVITY_DATE_PATTERN } from '../../src/helpers/date.helper';
-import { LoginPage } from '../../src/pages/login.page';
 import { SmartLoginPage } from '../../src/pages/smart/smart-login.page';
 import { step } from 'allure-js-commons';
 

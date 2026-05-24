@@ -45,15 +45,10 @@ jobs:
 
       - run: npm ci && npx playwright install --with-deps chromium
 
-      - name: Run smart-e2e and SauceDemo tests
-        run: npx playwright test --project=smart-e2e --project=chromium --workers=auto $SMOKE_FLAG
+      - name: Run smart-e2e tests
+        run: npx playwright test --project=smart-e2e --workers=auto $SMOKE_FLAG
         env:
           CI: true
-          BASE_URL: ${{ secrets.BASE_URL }}
-          STANDARD_USER: ${{ secrets.STANDARD_USER }}
-          LOCKED_USER: ${{ secrets.LOCKED_USER }}
-          PROBLEM_USER: ${{ secrets.PROBLEM_USER }}
-          PASSWORD: ${{ secrets.PASSWORD }}
           SMART_BASE_URL: ${{ secrets.SMART_BASE_URL }}
           SMART_PASSWORD: ${{ secrets.SMART_PASSWORD }}
           DK_USER: ${{ secrets.DK_USER }}

@@ -32,9 +32,6 @@ export default defineConfig({
 
   // Shared settings for all tests
   use: {
-    // Base URL for navigation shortcuts like page.goto('/')
-    baseURL: process.env.BASE_URL || '',
-
     // Collect trace on first retry
     trace: 'on-first-retry',
 
@@ -94,11 +91,5 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    // ── SauceDemo (no auth — login is tested inside the spec) ────────────────
-    {
-      name: 'chromium',
-      testMatch: ['**/e2e/login.spec.ts', '**/e2e/inventory.spec.ts'],
-      use: { ...devices['Desktop Chrome'] },
-    },
   ],
 });
