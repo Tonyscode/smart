@@ -1,0 +1,108 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: Which jobs to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - parallel
+          - login
+      environment:
+        description: Target environment
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  ENV: ${{ github.event.inputs.environment || 'dev' }}
+
+jobs:
+  # All other tests — parallel, multiple workers
+  e2e-parallel:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.jobs == 'both' || inputs.jobs == 'parallel' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci && npx playwright install --with-deps chromium
+
+      - name: Run smart-e2e and SauceDemo tests
+        run: npx playwright test --project=smart-e2e --project=chromium --workers=auto
+        env:
+          CI: true
+          BASE_URL: ${{ secrets.BASE_URL }}
+          STANDARD_USER: ${{ secrets.STANDARD_USER }}
+          LOCKED_USER: ${{ secrets.LOCKED_USER }}
+          PROBLEM_USER: ${{ secrets.PROBLEM_USER }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SMART_BASE_URL: ${{ secrets.SMART_BASE_URL }}
+          SMART_PASSWORD: ${{ secrets.SMART_PASSWORD }}
+          DK_USER: ${{ secrets.DK_USER }}
+          ACTIVITY_USER: ${{ secrets.ACTIVITY_USER }}
+          ACTIVITY1_USER: ${{ secrets.ACTIVITY1_USER }}
+          SMART_MAINTENANCE_KEY: ${{ secrets.SMART_MAINTENANCE_KEY }}
+          IMAP_LOGIN: ${{ secrets.IMAP_LOGIN }}
+          IMAP_PASSWORD: ${{ secrets.IMAP_PASSWORD }}
+          IMAP_HOST: ${{ secrets.IMAP_HOST }}
+          IMAP_PORT: ${{ secrets.IMAP_PORT }}
+          IMAP_FOLDER: INBOX
+
+      - name: Upload artifacts on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: artifacts-parallel
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  # Login tests — separate job, always 1 worker
+  e2e-login:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.jobs == 'both' || inputs.jobs == 'login' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci && npx playwright install --with-deps chromium
+
+      - name: Run smart-login tests (serial)
+        run: npx playwright test --project=smart-login --workers=1
+        env:
+          CI: true
+          SMART_BASE_URL: ${{ secrets.SMART_BASE_URL }}
+          SMART_PASSWORD: ${{ secrets.SMART_PASSWORD }}
+          DK_USER: ${{ secrets.DK_USER }}
+          SMART_MAINTENANCE_KEY: ${{ secrets.SMART_MAINTENANCE_KEY }}
+
+      - name: Upload artifacts on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: artifacts-login
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
