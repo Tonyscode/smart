@@ -4,7 +4,7 @@ on:
   push:
     branches: ['**']
   schedule:
-    - cron: '0 0 * * *'   # nightly at midnight UTC
+    - cron: '0 0 * * *' # nightly at midnight UTC
   workflow_dispatch:
     inputs:
       jobs:
@@ -46,7 +46,7 @@ jobs:
       - run: npm ci && npx playwright install --with-deps chromium
 
       - name: Run smart-e2e tests
-        run: npx playwright test --project=smart-e2e --workers=auto $SMOKE_FLAG
+        run: npx playwright test --project=smart-e2e --workers=2 $SMOKE_FLAG
         env:
           CI: true
           SMART_BASE_URL: ${{ secrets.SMART_BASE_URL }}
